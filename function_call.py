@@ -31,22 +31,22 @@ def download_image(image_url):
     return image
 
 if __name__ == "__main__":
-    # 🔹 GitHub raw link to your face_crop.py
-    github_script_url = "https://raw.githubusercontent.com/MiriamRunde/face_crop/main/face_crop.py"  # Adjust if needed
+    # GitHub raw link to your face_crop.py
+    github_script_url = "https://raw.githubusercontent.com/MiriamRunde/face_crop/main/crop.py"  # Adjust if needed
 
-    # 🔹 Image URL (or replace with a local file path)
-    image_url = "https://images.app.goo.gl/gUqZUJuLGpfrhd6V6"  # Replace with actual URL
+    # Image URL (or replace with a local file path)
+    image_url = "https://raw.githubusercontent.com/MiriamRunde/face_crop/main/data/sc3.png"
 
-    # 🔹 Output path
-    output_image_path = "output/cropped_face.jpg"
+    # Output path
+    output_image_path = "cropped_face.jpg"
 
-    # 🔹 Load the function from GitHub
+    # Load the function from GitHub
     download_and_load_function(github_script_url)
 
-    # 🔹 Download the image
+    # Download the image
     image = download_image(image_url)
 
-    # 🔹 Call the function
+    # Call the function
     cropped_face = crop_face_mediapipe(image)
 
     if cropped_face is not None:
