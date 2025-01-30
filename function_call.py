@@ -19,23 +19,35 @@ def download_and_load_function(github_raw_url):
 
     print("Function loaded successfully.")
 
+
+
 def download_image(image_url):
     """Downloads an image from a URL and converts it to an OpenCV image."""
     response = requests.get(image_url)
+    
     if response.status_code != 200:
-        print(f"Error: Could not download image from {image_url}")
-        sys.exit(1)
+        print(f"❌ Error: Could not download image from {image_url} (Status Code: {response.status_code})")
+        return None
 
     image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
     image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+    if image is None:
+        print("❌ Error: OpenCV could not decode the image.")
+        return None
+
+    print("✅ Image downloaded successfully.")
     return image
+
+
+
 
 if __name__ == "__main__":
     # GitHub raw link to your face_crop.py
     github_script_url = "https://raw.githubusercontent.com/MiriamRunde/face_crop/main/crop.py"  # Adjust if needed
 
     # Image URL (or replace with a local file path)
-    image_url = "https://raw.githubusercontent.com/MiriamRunde/face_crop/main/data/sc3.png"
+    image_url = "https://raw.githubusercontent.com/MiriamRunde/face_crop/main/data/sc1.png"
 
     # Output path
     output_image_path = "cropped_face.jpg"
@@ -43,14 +55,17 @@ if __name__ == "__main__":
     # Load the function from GitHub
     download_and_load_function(github_script_url)
 
-    # Download the image
+   # Download the image
     image = download_image(image_url)
-
+    
     # Call the function
     cropped_face = crop_face_mediapipe(image)
 
-    if cropped_face is not None:
-        cv2.imwrite(output_image_path, cropped_face)
-        print(f"Cropped face saved to {output_image_path}")
+
+    # Process and save all detected faces
+    cropped_faces = crop_face_mediapipe(image, output_folder="output")
+
+    if cropped_faces:
+        print(f"✅ {len(cropped_faces)} faces detected and saved.")
     else:
-        print("No face detected in the image.")
+        print("❌ No faces detected.")
