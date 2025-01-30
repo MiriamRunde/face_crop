@@ -3,7 +3,7 @@ import mediapipe as mp
 import sys
 import os
 
-def crop_faces_mediapipe(image, output_folder="output", padding=20):
+def crop_face_mediapipe(image, output_folder="output", padding=20):
     """
     Detects and crops all faces found in an image using Mediapipe.
     
