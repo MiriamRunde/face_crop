@@ -1,14 +1,16 @@
 import cv2
 import mediapipe as mp
 import sys
+import os
 
-def crop_face_mediapipe(image, padding=20):
+def crop_faces_mediapipe(image, output_folder="output", padding=20):
     """
-    Detects and crops the first face found in an image using Mediapipe.
+    Detects and crops all faces found in an image using Mediapipe.
     
     :param image: OpenCV image (numpy array)
-    :param padding: Extra pixels around the face (default: 20)
-    :return: Cropped face image (numpy array) or None if no face detected
+    :param output_folder: Folder to save cropped face images
+    :param padding: Extra pixels around each face (default: 20)
+    :return: List of cropped face images (numpy arrays)
     """
     # Initialize Mediapipe Face Detection
     mp_face_detection = mp.solutions.face_detection
@@ -20,21 +22,27 @@ def crop_face_mediapipe(image, padding=20):
     with mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5) as face_detection:
         results = face_detection.process(rgb_image)
 
-        # If no faces detected, return None
+        # If no faces detected, return empty list
         if not results.detections:
-            print("No face detected.")
-            return None
+            print("No faces detected.")
+            return []
 
-        # Process the first detected face
-        for detection in results.detections:
+        # Ensure output folder exists
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+
+        cropped_faces = []
+        ih, iw, _ = image.shape
+
+        # Process all detected faces
+        for i, detection in enumerate(results.detections):
             bboxC = detection.location_data.relative_bounding_box
-            ih, iw, _ = image.shape
             x = int(bboxC.xmin * iw) - padding
             y = int(bboxC.ymin * ih) - padding
             w = int(bboxC.width * iw) + 4 * padding
             h = int(bboxC.height * ih) + 4 * padding
 
-            # Ensure the coordinates are within image bounds
+            # Ensure coordinates are within image bounds
             x = max(0, x)
             y = max(0, y)
             w = min(w, iw - x)
@@ -42,6 +50,11 @@ def crop_face_mediapipe(image, padding=20):
 
             # Crop the face
             cropped_face = image[y:y+h, x:x+w]
-            return cropped_face  # Return the cropped face as an OpenCV image
+            cropped_faces.append(cropped_face)
 
-    return None  # Return None if no face was processed
+            # Save each cropped face
+            output_path = os.path.join(output_folder, f"cropped_face_{i+1}.jpg")
+            cv2.imwrite(output_path, cropped_face)
+            print(f"Cropped face {i+1} saved to {output_path}")
+
+        return cropped_faces  # Return list of cropped face images
